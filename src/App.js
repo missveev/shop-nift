@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import {Switch, Route} from 'react-router-dom';
+import {Switch, Route, Redirect} from 'react-router-dom';
 import {connect} from 'react-redux';
 import Homepage from "./Pages/homepage/Homepage";
 import ShopPage from "./Pages/shop/shop";
@@ -24,8 +24,7 @@ class App extends React.Component {
                         ...snapShot.data()
                     });
                 });
-            }
-            else {
+            } else {
                 setCurrentUser(userAuth);
             }
         });
@@ -39,18 +38,26 @@ class App extends React.Component {
 
         return (
             <div>
-                <Header />
+                <Header/>
                 <Switch>
                     <Route exact path='/' component={Homepage}/>
                     <Route path='/shop' component={ShopPage}/>
-                    <Route path='/signIn' component={SignIn}/>
+                    <Route exact path='/signIn' render={() =>
+                        this.props.currentUser ? (
+                                <Redirect to='/'/>) :
+                                (<SignIn/>)
+                    }/>
                 </Switch>
             </div>
         );
     }
 }
 
-const mapDispatchToProps =dispatch=>({
-   setCurrentUser: user=>dispatch(setCurrentUser(user))
+const mapStateToProps = ({user}) => ({
+    currentUser: user.currentUser
+});
+
+const mapDispatchToProps = dispatch => ({
+    setCurrentUser: user => dispatch(setCurrentUser(user))
 })
-export default connect(null, mapDispatchToProps)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(App);
